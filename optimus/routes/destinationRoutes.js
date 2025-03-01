@@ -1,8 +1,16 @@
 import express from "express";
 import Destination from "../models/Destination.js"
 import { expandDestination } from "../controllers/destinationController.js";
+import rateLimit from "express-rate-limit";
 
 const router = express.Router();
+
+const expandLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 5,
+    message: {error: "Too many expansion requests. Try again later"}
+})
+
 
 // ✅ Fetch all destinations
 router.get("/", async (req, res) => {
@@ -50,7 +58,7 @@ router.post("/", async (req, res) => {
 });
 
 
-router.post("/expand", expandDestination);
+router.post("/expand", expandLimiter,  expandDestination);
 
 
 export default router;

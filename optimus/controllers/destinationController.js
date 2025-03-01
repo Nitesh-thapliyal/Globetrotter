@@ -61,9 +61,11 @@ export const expandDestination = async (req, res) => {
         }
 
         // Append AI-generated content
-        destination.clues.push(...parsedData.clues);
-        destination.funFacts.push(...parsedData.funFacts);
-        destination.trivia.push(...parsedData.trivia);
+        // Append AI-generated content (avoid duplicates)
+        destination.clues = Array.from(new Set([...destination.clues, ...parsedData.clues]));
+        destination.funFacts = Array.from(new Set([...destination.funFacts, ...parsedData.funFacts]));
+        destination.trivia = Array.from(new Set([...destination.trivia, ...parsedData.trivia]));
+
 
         // Save the updated destination
         await destination.save();
