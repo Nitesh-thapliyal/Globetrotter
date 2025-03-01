@@ -14,11 +14,11 @@ export const getAllDestinations = async (req, res) => {
 // ✅ Expand a destination with AI-generated content
 export const expandDestination = async (req, res) => {
     try {
-        const { city } = req.body; // Get city name from request
+        const { city, difficulty = "medium" } = req.body; // Get city name from request
         if (!city) return res.status(400).json({ error: "City name is required." });
 
         // Find the existing destination in MongoDB
-        let destination = await Destination.findOne({ name: city });
+        let destination = await Destination.findOne({ name: new RegExp("^" + city + "$", "i") });
 
         // If destination doesn't exist, create a new one
         if (!destination) {
@@ -35,6 +35,15 @@ export const expandDestination = async (req, res) => {
         const aiGeneratedData = await generateDestinationPrompt(
             `Generate three cryptic clues, two fun facts, and one trivia question for the travel destination: ${city}.
             
+            - Clues should match the difficulty level:  
+              - Easy: Simple hints referencing famous landmarks.  
+              - Medium: Wordplay and cultural hints.  
+              - Hard: Obscure historical references or local legends.  
+            - Fun facts should be surprising and unique.  
+            - Trivia should be challenging but answerable.  
+            
+            Difficulty: ${difficulty}
+
             Format as valid JSON (without Markdown, without backticks):
             {
               "clues": ["clue1", "clue2", "clue3"],
